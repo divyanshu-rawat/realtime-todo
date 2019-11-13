@@ -12,6 +12,14 @@ import { ApolloProvider } from "@apollo/react-hooks";
 
 import { useAuth0 } from "./Auth/react-auth0-spa";
 
+/**
+ * 
+ * With Apollo Client, you can send queries in 2 different ways.
+
+    1 - Using the query method directly and then process the response.
+    2 - New useQuery React hook with React. (Recommended)
+ */
+
 const createApolloClient = authToken => {
   return new ApolloClient({
     link: new HttpLink({
@@ -29,11 +37,25 @@ const App = ({ idToken }) => {
   if (loading) {
     return <div>Loading...</div>;
   }
-
   const client = createApolloClient(idToken);
   return (
     <ApolloProvider client={client}>
-      <div />
+      <Header logoutHandler={logout} />
+      <div className="row container-fluid p-left-right-0 m-left-right-0">
+        <div className="row col-md-9 p-left-right-0 m-left-right-0">
+          <div className="col-md-6 sliderMenu p-30">
+            <TodoPrivateWrapper />
+          </div>
+          <div className="col-md-6 sliderMenu p-30 bg-gray border-right">
+            <TodoPublicWrapper />
+          </div>
+        </div>
+        <div className="col-md-3 p-left-right-0">
+          <div className="col-md-12 sliderMenu p-30 bg-gray">
+            <OnlineUsersWrapper />
+          </div>
+        </div>
+      </div>
     </ApolloProvider>
   );
 };
