@@ -20,7 +20,30 @@ const TodoItem = ({ index, todo }) => {
     }
   `;
 
-  const [toggleTodoMutation] = useMutation(TOGGLE_TODO);
+  //  It receives the result of the mutation (data) and the current cache (store) as arguments.
+  const updateCache = cache => {
+    const existingTodos = cache.readQuery({
+      query: GET_MY_TODOS
+    });
+
+    console.log("et", existingTodos);
+    const newTodos = existingTodos.todos.map(t => {
+      if (t.id === todo.id) {
+        return { ...t, is_completed: !t.is_completed };
+      } else {
+        return t;
+      }
+    });
+
+    cache.writeQuery({
+      query: GET_MY_TODOS,
+      data: { todos: newTodos }
+    });
+  };
+
+  const [toggleTodoMutation] = useMutation(TOGGLE_TODO, {
+    update: updateCache
+  });
 
   const toggleTodo = () => {
     toggleTodoMutation({

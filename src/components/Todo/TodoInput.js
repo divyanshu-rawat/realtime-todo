@@ -20,10 +20,7 @@ const ADD_TODO = gql`
 // eslint-disable-next-line react/prop-types
 const TodoInput = ({ isPublic = false }) => {
   const [todoInput, setTodoInput] = useState("");
-  const [addTodo] = useMutation(ADD_TODO, {
-    update: updateCache,
-    onCompleted: resetInput
-  });
+
   //  It receives the result of the mutation (data) and the current cache (store) as arguments.
   const updateCache = (cache, { data }) => {
     if (isPublic) {
@@ -33,7 +30,7 @@ const TodoInput = ({ isPublic = false }) => {
     const existingTodos = cache.readQuery({
       query: GET_MY_TODOS
     });
-    console.log("data", data);
+
     const newTodo = data.insert_todos.returning[0];
     cache.writeQuery({
       query: GET_MY_TODOS,
@@ -44,6 +41,11 @@ const TodoInput = ({ isPublic = false }) => {
   const resetInput = () => {
     setTodoInput("");
   };
+
+  const [addTodo] = useMutation(ADD_TODO, {
+    update: updateCache,
+    onCompleted: resetInput
+  });
 
   return (
     <form
