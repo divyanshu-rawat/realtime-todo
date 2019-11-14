@@ -5,6 +5,10 @@ import { GET_MY_TODOS } from "./TodoPrivateList";
 
 const TodoItem = ({ index, todo }) => {
   const removeTodo = e => {
+    deleteTodoMutation({
+      variables: { id: todo.id },
+      optimisticResponse: null
+    });
     e.preventDefault();
     e.stopPropagation();
   };
@@ -20,13 +24,20 @@ const TodoItem = ({ index, todo }) => {
     }
   `;
 
+  const DELETE_TODO = gql`
+    mutation removeTodo($id: Int!) {
+      delete_todos(where: { id: { _eq: $id } }) {
+        affected_rows
+      }
+    }
+  `;
+
   //  It receives the result of the mutation (data) and the current cache (store) as arguments.
   const updateCache = cache => {
     const existingTodos = cache.readQuery({
       query: GET_MY_TODOS
     });
 
-    console.log("et", existingTodos);
     const newTodos = existingTodos.todos.map(t => {
       if (t.id === todo.id) {
         return { ...t, is_completed: !t.is_completed };
@@ -54,6 +65,21 @@ const TodoItem = ({ index, todo }) => {
       optimisticResponse: null
     });
   };
+
+  const [deleteTodoMutation] = useMutation(DELETE_TODO, {
+    update: cache => {
+      const existingTodos = cache.readQuery({ query: GET_MY_TODOS });
+      console.log(existingTodos);
+      const newTodos = existingTodos.todos.filter(t => {
+        return t.id != todo.id;
+      });
+
+      cache.writeQuery({
+        query: GET_MY_TODOS,
+        data: { todos: newTodos }
+      });
+    }
+  });
 
   return (
     <li>
